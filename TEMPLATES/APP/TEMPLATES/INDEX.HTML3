@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Installment Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .button {
+            padding: 10px 15px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            display: none;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+        input, select, button {
+            margin-top: 10px;
+            padding: 10px;
+            width: 90%;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>?? AI Installment Assistant</h1>
+
+    <!-- Step 1: Installment Calculator -->
+    <div id="step1">
+        <h2>?? Installment Calculator</h2>
+        <label>iPhone Model:</label>
+        <select id="model">
+            <option value="iPhone 13 Pro">iPhone 13 Pro - R13,500</option>
+            <option value="iPhone 14 Pro">iPhone 14 Pro - R15,500</option>
+            <option value="iPhone 16 Pro Max">iPhone 16 Pro Max - R19,500</option>
+        </select>
+
+        <label>Storage:</label>
+        <select id="storage">
+            <option value="128GB">128GB</option>
+            <option value="256GB">256GB</option>
+            <option value="512GB">512GB</option>
+        </select>
+
+        <label>Deposit (Min R750):</label>
+        <input type="number" id="deposit" min="750" value="750">
+
+        <label>Repayment Period (Months):</label>
+        <select id="months">
+            <option value="3">3 Months</option>
+            <option value="6">6 Months</option>
+            <option value="12">12 Months</option>
+            <option value="24">24 Months</option>
+        </select>
+
+        <button onclick="calculateInstallment()">Calculate</button>
+        <div id="installment_result" class="response"></div>
+        <button onclick="nextStep(1)" class="button" id="step1Continue">Continue</button>
+    </div>
+
+    <!-- Step 2: Eligibility Form -->
+    <div id="step2" class="hidden">
+        <h2>?? Upload Eligibility Documents</h2>
+        <label>? Proof of Income:</label>
+        <input type="file" id="proof_income" accept="image/*, .pdf" required>
+
+        <label>? Valid ID:</label>
+        <input type="file" id="valid_id" accept="image/*, .pdf" required>
+
+        <label>? Proof of Residence:</label>
+        <input type="file" id="proof_residence" accept="image/*, .pdf" required>
+
+        <button onclick="submitDocuments()">Submit Documents</button>
+        <div id="doc_result" class="response"></div>
+
+        <button onclick="prevStep(2)" class="button" id="back2">Back</button>
+        <button onclick="nextStep(2)" class="button" id="step2Continue">Continue</button>
+    </div>
+
+    <!-- Step 3: Payment Method -->
+    <div id="step3" class="hidden">
+        <h2>?? Choose Payment Method</h2>
+        <select id="payment_method">
+            <option value="EFT">EFT (Electronic Funds Transfer)</option>
+            <option value="Cash Send">Cash Send</option>
+            <option value="COD">COD (Cash on Delivery for orders above R10,000)</option>
+        </select>
+        <button onclick="confirmPayment()">Confirm Payment Method</button>
+        <div id="payment_result" class="response"></div>
+
+        <button onclick="prevStep(3)" class="button" id="back3">Back</button>
+        <button onclick="nextStep(3)" class="button" id="step3Continue">Continue</button>
+    </div>
+
+    <!-- Step 4: Final Step -->
+    <div id="finalStep" class="hidden">
+        <h2>?? Application Submitted</h2>
+        <p>Your installment application has been successfully submitted.</p>
+        <button onclick="restartProcess()" class="button">Start Over</button>
+    </div>
+</div>
+
+<script>
+    function calculateInstallment() {
+        let price = { "iPhone 13 Pro": 13500, "iPhone 14 Pro": 15500, "iPhone 16 Pro Max": 19500 };
+        let model = document.getElementById("model").value;
+        let deposit = parseFloat(document.getElementById("deposit").value);
+        let months = parseInt(document.getElementById("months").value);
+        let interestRates = { 3: 0.05, 6: 0.08, 12: 0.12, 24: 0.15 };
+        let interest = interestRates[months];
+        let totalCost = (price[model] - deposit) * (1 + interest);
+        let monthlyPayment = totalCost / months;
+
+        document.getElementById("installment_result").innerHTML =
+            `<strong>Total Cost:</strong> R${totalCost.toFixed(2)}<br>
+            <strong>Monthly Payment:</strong> R${monthlyPayment.toFixed(2)}`;
+        
+        document.getElementById("step1Continue").style.display = "block";
+    }
+
+    function submitDocuments() {
+        document.getElementById("doc_result").innerHTML = "? Documents submitted successfully!";
+        document.getElementById("step2Continue").style.display = "block";
+        document.getElementById("back2").style.display = "block";
+    }
+
+    function confirmPayment() {
+        let method = document.getElementById("payment_method").value;
+        document.getElementById("payment_result").innerHTML = `? Payment method confirmed: ${method}`;
+        document.getElementById("step3Continue").style.display = "block";
+        document.getElementById("back3").style.display = "block";
+    }
+
+    function nextStep(currentStep) {
+        document.getElementById(`step${currentStep}`).classList.add("hidden");
+        document.getElementById(`step${currentStep + 1}`).classList.remove("hidden");
+    }
+
+    function prevStep(currentStep) {
+        document.getElementById(`step${currentStep}`).classList.add("hidden");
+        document.getElementById(`step${currentStep - 1}`).classList.remove("hidden");
+    }
+
+    function restartProcess() {
+        document.getElementById("step1").classList.remove("hidden");
+        document.getElementById("finalStep").classList.add("hidden");
+        document.getElementById("step2").classList.add("hidden");
+        document.getElementById("step3").classList.add("hidden");
+        document.getElementById("step1Continue").style.display = "none";
+        document.getElementById("step2Continue").style.display = "none";
+        document.getElementById("step3Continue").style.display = "none";
+        document.getElementById("back2").style.display = "none";
+        document.getElementById("back3").style.display = "none";
+        document.getElementById("installment_result").innerHTML = "";
+        document.getElementById("doc_result").innerHTML = "";
+        document.getElementById("payment_result").innerHTML = "";
+    }
+</script>
+
+</body>
+</html>
